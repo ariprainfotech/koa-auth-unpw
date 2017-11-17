@@ -27,14 +27,19 @@ app.use(views(__dirname + '/views',
         map: {
             html: 'mustache'
         },
-        extension: 'mustache'
-
+        extension: 'mustache',
+        debug: true,
+        options: {
+            partials: {
+                header: 'header'
+            }
+        }
     }
 ));
 
-app.use(function(ctx, next) {
-    ctx.flash = function(type, msg) {
-        ctx.session.flash = { type: type, message: msg };
+app.use(function (ctx, next) {
+    ctx.flash = function (type, msg) {
+        ctx.session.flash = {type: type, message: msg};
     }
 
     return next();
@@ -45,16 +50,16 @@ let baseRouter = new Router()
 
 baseRouter.get("/", async (ctx) => {
     console.log("rendering login page")
-    if(ctx.session.flash && ctx.session.flash.message) {
+    if (ctx.session.flash && ctx.session.flash.message) {
         // clear message
         let msg = ctx.session.flash.message
         ctx.session.flash = undefined
         return ctx.render("login", {errorMsg: msg})
     }
-    return ctx.render("login")
+    return ctx.render("login", {})
 })
 
-baseRouter.get('/logout', function(ctx) {
+baseRouter.get('/logout', function (ctx) {
     ctx.logout()
     ctx.redirect('/')
 })
@@ -65,14 +70,14 @@ baseRouter.post('/login', async (ctx, next) => {
     }, passport.authenticate('local', {
         successRedirect: '/app',
         failureRedirect: '/',
-        failureFlash:true
+        failureFlash: true
     })
 )
 
 /**
  * All the URLs that follows this needs authentication to work
  */
-baseRouter.use(function(ctx, next) {
+baseRouter.use(function (ctx, next) {
     if (ctx.isAuthenticated()) {
         return next()
     } else {
@@ -81,7 +86,7 @@ baseRouter.use(function(ctx, next) {
 })
 
 baseRouter.get("/app", async (ctx) => {
-    if(ctx.isAuthenticated())
+    if (ctx.isAuthenticated())
         return ctx.render("app")
     else
         ctx.redirect("/")
