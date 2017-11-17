@@ -1,0 +1,50 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Management</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+        #login {
+            position: absolute;
+            top: 37%;
+            left: 48%;
+            margin-top: -115px;
+            margin-left: -150px;
+            width: 370px;
+            min-height: 230px;
+            padding: 10px 40px;
+            background: #F5F0EC;
+            box-shadow: 2px 2px 4px #bcb6b0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<h2 style="text-align:center">Sample Application</h2>
+<div id="login">
+    <div id="loader"></div>
+    <div class="container-fixed">
+        <span style="color:red">{{errorMsg}}</span>
+        <form method="post" id="loginForm" action="/login">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input name="username" class="form-control" id="username">
+            </div>
+            <div class="form-group">
+                <label for="pwd">Password:</label>
+                <input name="password" type="password" class="form-control" id="pwd">
+            </div>
+            <div class="text-center">
+                <button type="submit" id='submit' class="btn orange-button login-button">LOGIN</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</div>
+</html>
