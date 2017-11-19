@@ -9,10 +9,23 @@ import koaSession from 'koa-session'
 import noConfig from 'no-config'
 import confFile from './config'
 import co from 'co'
+import mongoose from 'mongoose'
 
 // Initializing configuration first and then starting application
 co(async () => {
-    let conf = await noConfig({config:confFile})
+    let conf = await noConfig({config: confFile})
+
+    try {
+        mongoose.Promise = global.Promise
+        await mongoose.connect(conf.mongo.url, {
+            "useMongoClient": conf.mongo.useMongoClient
+        })
+        console.log("Connection to database Successful!")
+    } catch (error) {
+        console.log("Error connecting to database, please check your configurations...")
+        return
+    }
+
     let app = new Koa()
     app.use(cookie())
     app.use(koaBody({multipart: true, formidable: {keepExtensions: true}}))
