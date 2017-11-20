@@ -1,12 +1,22 @@
 import passport from 'koa-passport'
 import LocalStrategy from 'passport-local'
+import {UserModel} from "./models"
+import co from 'co'
 
 const strategy = new LocalStrategy(
-    function (username, password, done) {
-        if (username == 'aripra' && password == 'aripra')
-            return done(null, {username: 'Aripra', role: 'admin'})
-        else
-            return done(null, false, {message: 'Login failed'})
+    (username, password, done) => {
+        co(async () => {
+            try {
+                let user = await UserModel.verifyUser(username, password)
+                if (user)
+                    return done(null, user)
+                else
+                    return done(null, false, {message: 'Login failed'})
+
+            } catch (ex) {
+                return done(null, false, {message: 'Login failed'})
+            }
+        })
     }
 )
 

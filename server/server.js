@@ -10,6 +10,8 @@ import noConfig from 'no-config'
 import confFile from './config'
 import co from 'co'
 import mongoose from 'mongoose'
+import {userRouter} from "./routers"
+import {UserModel} from "./models"
 
 // Initializing configuration first and then starting application
 co(async () => {
@@ -53,11 +55,28 @@ co(async () => {
         }
     ));
 
+    app.use(async (ctx, next) => {
+        try {
+            let response = await next();
+            if (response !== undefined) {
+                ctx.body = {
+                    success: true,
+                    data: response
+                }
+            }
+
+        } catch (err) {
+            console.log("Error occurred: ", err)
+            ctx.status = err.status || 500;
+            ctx.body = err.message;
+            ctx.app.emit('error', err, ctx);
+        }
+    });
+
     app.use(function (ctx, next) {
         ctx.flash = function (type, msg) {
             ctx.session.flash = {type: type, message: msg};
         }
-
         return next();
     });
 
@@ -79,15 +98,21 @@ co(async () => {
         ctx.redirect('/')
     })
 
-
-    baseRouter.post('/login', async (ctx, next) => {
-            next()
-        }, passport.authenticate('local', {
+    baseRouter.post('/login', passport.authenticate('local', {
             successRedirect: '/app',
             failureRedirect: '/',
             failureFlash: true
         })
     )
+
+    baseRouter.post('/register', async ctx =>{
+            return await UserModel.saveUser(ctx.request.body)
+        }
+    )
+
+    let apiRouter = new Router()
+
+    apiRouter.use('/api', userRouter.routes(), userRouter.allowedMethods())
 
     /**
      * All the URLs that follows this needs authentication to work
@@ -101,13 +126,12 @@ co(async () => {
     })
 
     baseRouter.get("/app", async (ctx) => {
-        if (ctx.isAuthenticated())
-            return ctx.render("app")
-        else
-            ctx.redirect("/")
+        console.log("logged in user is ", ctx.state.user)
+        return ctx.render("app")
     })
 
     app.use(baseRouter.routes())
+    app.use(apiRouter.routes())
 
     app.listen(conf.server.port, () => {
         console.log('Server started on ', conf.server.port)
